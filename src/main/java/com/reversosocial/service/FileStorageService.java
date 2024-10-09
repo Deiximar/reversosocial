@@ -1,5 +1,6 @@
 package com.reversosocial.service;
 
+import java.util.HashMap;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Value;
@@ -23,19 +24,21 @@ public class FileStorageService {
         cloudinary = new Cloudinary(ObjectUtils.asMap(
             "cloud_name", cloudName,
             "api_key", apiKey,
-            "api_secret", apiSecret
+            "api_secret", apiSecret,
+            "secure", true
         ));
     }
 
     public String storeFile(MultipartFile file) {
         try {
-            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), ObjectUtils.emptyMap());
+            HashMap<Object, Object> options = new HashMap<>();
+            options.put("file", "test");
+            Map uploadResult = cloudinary.uploader().upload(file.getBytes(), options);
             return uploadResult.get("url").toString();
         } catch (Exception e) {
-            throw new RuntimeException("Error al subir el archivo a Cloudinary", e);
+            String errorMessage = "Error cloudinary: " + e.getMessage();
+            throw new RuntimeException(errorMessage, e);
         }
     }
-
-
     
 }
