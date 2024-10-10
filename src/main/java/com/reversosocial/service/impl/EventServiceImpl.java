@@ -166,7 +166,7 @@ public class EventServiceImpl implements EventService {
 
   private boolean isOwnerOrAdmin(Event event, String userEmail, Authentication authentication) {
     boolean isAdmin = authentication.getAuthorities().stream()
-        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+        .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FEMSENIORADMIN"));
     return event.getUser().getEmail().equals(userEmail) || isAdmin;
   }
 }

@@ -100,7 +100,7 @@ public class ServiceBusinessServiceImpl implements ServiceBusinessService {
 
     private boolean isOwnerOrAdmin(ServiceBusiness serviceBusiness, String userEmail, Authentication authentication) {
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FEMSENIORADMIN"));
         return serviceBusiness.getUser().getEmail().equals(userEmail) || isAdmin;
     }
 

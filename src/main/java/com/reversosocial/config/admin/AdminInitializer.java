@@ -67,9 +67,10 @@ public class AdminInitializer {
 
     @PostConstruct
     public void init() {
-        Optional<Role> adminRole = roleRepository.findByRole(ERole.ADMIN);
+        Optional<Role> femseniorAdminRole = roleRepository.findByRole(ERole.FEMSENIORADMIN);
+        Optional<Role> reversoAdminRole = roleRepository.findByRole(ERole.REVERSOADMIN);
 
-        if (adminRole.isPresent()) {
+        if (reversoAdminRole.isPresent() && femseniorAdminRole.isPresent()) {
             DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd/MM/yyyy");
 
             try {
@@ -83,7 +84,7 @@ public class AdminInitializer {
                             .email(adminReversoEmail)
                             .birthday(birthdayAdminReverso)
                             .password(passwordEncoder.encode(adminReversoPassword))
-                            .role(adminRole.get())
+                            .role(reversoAdminRole.get())
                             .build();
 
                     userRepository.save(adminReverso);
@@ -100,7 +101,7 @@ public class AdminInitializer {
                             .email(adminFemseniorEmail)
                             .birthday(birthdayAdminFemsenior)
                             .password(passwordEncoder.encode(adminFemseniorPassword))
-                            .role(adminRole.get())
+                            .role(femseniorAdminRole.get())
                             .build();
 
                     userRepository.save(adminFemsenior);

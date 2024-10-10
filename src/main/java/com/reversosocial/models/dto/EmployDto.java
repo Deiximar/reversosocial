@@ -1,47 +1,34 @@
 package com.reversosocial.models.dto;
 
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
+import lombok.AllArgsConstructor;
+import lombok.Builder;
+import lombok.Data;
+import lombok.NoArgsConstructor;
+
+@Data
+@Builder
+@NoArgsConstructor
+@AllArgsConstructor
 public class EmployDto {
+    private Integer id;
+    @NotNull(message = "El campo puesto es requerido.")
+    @NotBlank(message = "El campo puesto es requerido.")
     private String position;
-    private String cvUrl;
+
+    @NotNull(message = "El campo curriculum es requerido. Por favor subir un archivo")
+    @NotBlank(message = "El campo curriculum es requerido. Por favor subir un archivo")
+    private String curriculum;
+
+    @NotNull(message = "El campo descripción es requerido.")
+    @NotBlank(message = "El campo descripción es requerido.")
     private String description;
-    private int sectorId;
 
-    public EmployDto(String position, String cvUrl, String description, int sectorId) {
-        this.position = position;
-        this.cvUrl = cvUrl;
-        this.description = description;
-        this.sectorId = sectorId;
-    }
+    @NotNull(message = "El campo sector es requerido.")
+    @NotBlank(message = "El campo sector es requerido.")
+    private String sector;
 
-    public String getPosition() {
-        return position;
-    }
+    private String creatorEmail;
 
-    public void setPosition(String position) {
-        this.position = position;
-    }
-
-    public String getCvUrl() {
-        return cvUrl;
-    }
-
-    public void setCvUrl(String cvUrl) {
-        this.cvUrl = cvUrl;
-    }
-
-    public String getDescription() {
-        return description;
-    }
-
-    public void setDescription(String description) {
-        this.description = description;
-    }
-
-    public int getSectorId() {
-        return sectorId;
-    }
-
-    public void setSectorId(int sectorId) {
-        this.sectorId = sectorId;
-    }
 }

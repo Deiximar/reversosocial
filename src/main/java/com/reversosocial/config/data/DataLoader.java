@@ -29,7 +29,6 @@ public class DataLoader {
   @Bean
   CommandLineRunner initDatabaseRoles(UserRepository repository) {
     return args -> {
-
       Permission createPermission = permissionRepository.findByPermission(EPermission.CREATE)
           .orElseGet(() -> permissionRepository.save(Permission.builder().permission(EPermission.CREATE).build()));
       Permission readPermission = permissionRepository.findByPermission(EPermission.READ)
@@ -46,6 +45,16 @@ public class DataLoader {
           .permissionList(Set.of(createPermission, readPermission, deletePermission, updatePermission))
           .build();
 
+      Role femseniorAdminRole = Role.builder()
+          .role(ERole.FEMSENIORADMIN)
+          .permissionList(Set.of(createPermission, readPermission, deletePermission, updatePermission))
+          .build();
+
+      Role reversoAdminRole = Role.builder()
+          .role(ERole.REVERSOADMIN)
+          .permissionList(Set.of(createPermission, readPermission, deletePermission, updatePermission))
+          .build();
+
       Role femseniorRole = Role.builder()
           .role(ERole.FEMSENIOR)
           .permissionList(
@@ -59,6 +68,14 @@ public class DataLoader {
 
       if (roleRepository.findByRole(ERole.ADMIN).isEmpty()) {
         roleRepository.save(adminRole);
+      }
+
+      if (roleRepository.findByRole(ERole.FEMSENIORADMIN).isEmpty()) {
+        roleRepository.save(femseniorAdminRole);
+      }
+
+      if (roleRepository.findByRole(ERole.REVERSOADMIN).isEmpty()) {
+        roleRepository.save(reversoAdminRole);
       }
 
       if (roleRepository.findByRole(ERole.USER).isEmpty()) {

@@ -32,10 +32,9 @@ public class ResourceServiceImpl implements ResourceService {
 
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado."));
-      
+
         Resource resource = mapResourceToEntity(resourceDto);
         resource.setUser(user);
-
 
         Resource createdResource = resourceRepository.save(resource);
         return mapResourceToDto(createdResource);
@@ -80,7 +79,7 @@ public class ResourceServiceImpl implements ResourceService {
         resource.setUrl(resourceDto.getUrl());
         resource.setDescription(resourceDto.getDescription());
         resource.setFile(resourceDto.getFile());
-        
+
         Resource updatedResource = resourceRepository.save(resource);
         return mapResourceToDto(updatedResource);
 
@@ -107,7 +106,7 @@ public class ResourceServiceImpl implements ResourceService {
     private boolean isOwnerOrAdmin(Resource resource, String userEmail, Authentication authentication) {
         boolean isOwner = resource.getUser().getEmail().equals(userEmail);
         boolean isAdmin = authentication.getAuthorities().stream()
-                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_ADMIN"));
+                .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FEMSENIORADMIN"));
         return isOwner || isAdmin;
     }
 }
