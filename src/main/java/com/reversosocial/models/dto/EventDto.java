@@ -50,5 +50,7 @@ public class EventDto {
   @NotNull(message = "El campo sector es requerido.")
   private String sector;
 
+  private boolean eventFull;
   private String creatorEmail;
+  private boolean userSubscribed;
 }

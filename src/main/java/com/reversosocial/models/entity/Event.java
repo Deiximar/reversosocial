@@ -45,6 +45,7 @@ public class Event {
   private String location;
   @Column(name = "maximum_participants", nullable = false)
   private Integer maxParticipants;
+  private boolean isEventFull;
 
   @ManyToOne(fetch = FetchType.EAGER)
   @JoinColumn(name = "sector_id", nullable = false)
@@ -58,4 +59,7 @@ public class Event {
   @JoinTable(name = "event_users", joinColumns = @JoinColumn(name = "event_id"), inverseJoinColumns = @JoinColumn(name = "user_id"))
   private List<User> subscriptors;
 
+  public void checkAndUpdateIsFull() {
+    this.isEventFull = this.subscriptors.size() >= this.maxParticipants;
+}
 }

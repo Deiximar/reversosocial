@@ -19,6 +19,7 @@ import com.reversosocial.repository.UserRepository;
 import com.reversosocial.service.EventService;
 import java.util.stream.Collectors;
 import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.authentication.AnonymousAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 
@@ -107,32 +108,49 @@ public class EventServiceImpl implements EventService {
   public EventDto getEventById(Integer eventId) {
     Event event = eventRepository.findById(eventId)
         .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado."));
-    return mapEventToDto(event);
-  }
+    
+    EventDto eventDto = mapEventToDto(event);
+    
+    // Obtener el usuario actual
+    User currentUser = getCurrentUser();
+    
+    // Determinar si el usuario está suscrito al evento
+    boolean isUserSubscribed = false;
+    if (currentUser != null) {
+      isUserSubscribed = event.getSubscriptors().stream()
+      .anyMatch(user -> user.getId() == currentUser.getId());
+    }
+    
+    // Establecer el campo isUserSubscribed en el EventDto
+    eventDto.setUserSubscribed(isUserSubscribed);
+    
+    return eventDto;
+}
 
   @Override
-  public String subscribeUserToEvent(Integer eventId) {
+public String subscribeUserToEvent(Integer eventId) {
     Event event = eventRepository.findById(eventId)
         .orElseThrow(() -> new ResourceNotFoundException("Evento no encontrado."));
 
-    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-    String userEmail = authentication.getName();
-    User user = userRepository.findByEmail(userEmail)
-        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado."));
+    User user = getCurrentUser(); 
 
+    // Verifica si el evento ya está lleno.
+    if (event.isEventFull()) {
+        throw new EventFullException("El evento ya está lleno.");
+    }
+
+    // Verifica si el usuario ya está suscrito.
     if (event.getSubscriptors().contains(user)) {
-      throw new CustomException("Ya estás suscrito a este evento.");
+        throw new CustomException("Ya estás suscrito a este evento.");
     }
 
-    int currentParticipants = event.getSubscriptors().size();
-    if (currentParticipants >= event.getMaxParticipants()) {
-      throw new EventFullException("El evento ya esta lleno.");
-    }
-
+    // Agrega el usuario a la lista de suscriptores y actualiza el estado de isFull.
     event.getSubscriptors().add(user);
+    event.checkAndUpdateIsFull(); 
+
     eventRepository.save(event);
-    return ("¡Te has subscripto al evento " + event.getTitle() + " con exito!");
-  }
+    return "¡Te has suscrito al evento " + event.getTitle() + " con éxito!";
+}
 
   @Override
   public String unsubscribeUserToEvent(Integer eventId) {
@@ -146,6 +164,7 @@ public class EventServiceImpl implements EventService {
 
     if (event.getSubscriptors().contains(user)) {
       event.getSubscriptors().remove(user);
+      event.checkAndUpdateIsFull();
       eventRepository.save(event);
     } else {
       throw new CustomException("No estás suscrito a este evento.");
@@ -161,9 +180,9 @@ public class EventServiceImpl implements EventService {
   private EventDto mapEventToDto(Event event) {
     EventDto eventDto = modelMapper.map(event, EventDto.class);
     eventDto.setCreatorEmail(event.getUser().getEmail());
+    eventDto.setEventFull(event.isEventFull()); // Asegura que este método sea reconocido y se utilice correctamente
     return eventDto;
-  }
-
+}
   private boolean isOwnerOrAdmin(Event event, String userEmail, Authentication authentication) {
     boolean isAdmin = authentication.getAuthorities().stream()
         .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("ROLE_FEMSENIORADMIN"));
@@ -177,4 +196,13 @@ public class EventServiceImpl implements EventService {
                      .map(this::mapEventToDto)  
                      .collect(Collectors.toList()); 
     }
+  private User getCurrentUser() {
+    Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+    if (authentication == null || !authentication.isAuthenticated() || authentication instanceof AnonymousAuthenticationToken) {
+      return null;
+    }
+    String userEmail = authentication.getName();
+    return userRepository.findByEmail(userEmail)
+        .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado."));
 }
+  }

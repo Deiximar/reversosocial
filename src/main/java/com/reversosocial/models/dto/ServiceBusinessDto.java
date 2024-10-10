@@ -16,7 +16,7 @@ public class ServiceBusinessDto {
     private Integer id;
 
     @NotNull(message = "El campo nombre de titulo es requerido.")
-    @NotBlank(message = "El campo nombre de titulo es requerido.")
+    @NotBlank(message = "El campo nombre de titulo es reque rido.")
     private String title;
     @NotNull(message = "El campo tipo es requerido.")
     @NotBlank(message = "El campo tipo es requerido.")

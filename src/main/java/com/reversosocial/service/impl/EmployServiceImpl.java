@@ -16,6 +16,7 @@ import com.reversosocial.repository.EmployRepository;
 import com.reversosocial.repository.SectorRepository;
 import com.reversosocial.repository.UserRepository;
 import com.reversosocial.service.EmployService;
+import com.reversosocial.service.FileStorageService;
 
 import lombok.RequiredArgsConstructor;
 
@@ -29,6 +30,7 @@ public class EmployServiceImpl implements EmployService {
     private final SectorRepository sectorRepository;
     private final UserRepository userRepository;
     private final ModelMapper modelMapper;
+    private final FileStorageService fileStorageService;
 
     @Override
     public List<EmployDto> getAllEmploys() {
@@ -48,7 +50,6 @@ public class EmployServiceImpl implements EmployService {
 
     @Override
     public EmployDto createEmploy(EmployDto employDto) {
-
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         boolean hasPermission = authentication.getAuthorities().stream()
                 .anyMatch(grantedAuthority -> grantedAuthority.getAuthority().equals("CREATE"));
@@ -58,23 +59,22 @@ public class EmployServiceImpl implements EmployService {
         String userEmail = authentication.getName();
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new UsernameNotFoundException("Usuario no encontrado."));
-
         Sector sector = sectorRepository.findBySector(employDto.getSector())
                 .orElseThrow(() -> new ResourceNotFoundException("Sector no encontrado."));
 
+        String curriculumUrl = fileStorageService.storeFile(employDto.getCurriculum());
         Employ employ = mapEmployToEntity(employDto);
         employ.setUser(user);
         employ.setSector(sector);
+        employ.setCurriculumUrl(curriculumUrl);
         Employ createdEmploy = employRepository.save(employ);
         return mapEmployToDto(createdEmploy);
     }
 
     @Override
     public EmployDto updateEmploy(Integer employId, EmployDto employDto) {
-
         Employ employ = employRepository.findById(employId)
-                .orElseThrow(() -> new ResourceNotFoundException("Curriculum no encontrado"));
-
+                .orElseThrow(() -> new ResourceNotFoundException("Curriculum no encontrado."));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String userEmail = authentication.getName();
         if (!isOwnerOrAdmin(employ, userEmail, authentication)) {
@@ -82,12 +82,11 @@ public class EmployServiceImpl implements EmployService {
         }
         Sector sector = sectorRepository.findBySector(employDto.getSector())
                 .orElseThrow(() -> new ResourceNotFoundException("Sector no encontrado."));
-
+        String curriculumUrl = fileStorageService.storeFile(employDto.getCurriculum());
         employ.setPosition(employDto.getPosition());
-        employ.setCurriculum(employDto.getCurriculum());
+        employ.setCurriculumUrl(curriculumUrl);
         employ.setDescription(employDto.getDescription());
         employ.setSector(sector);
-
         Employ updatedemploy = employRepository.save(employ);
         return mapEmployToDto(updatedemploy);
     }

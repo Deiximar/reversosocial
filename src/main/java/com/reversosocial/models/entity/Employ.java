@@ -20,8 +20,8 @@ public class Employ {
     @Column(name = "position", length = 100, nullable = false)
     private String position;
 
-    @Column(name = "curriculum", length = 100, nullable = false)
-    private String curriculum;
+    @Column(name = "curriculum_url", length = 100, nullable = false)
+    private String curriculumUrl;
 
     @Column(name = "description", length = 500, nullable = false)
     private String description;

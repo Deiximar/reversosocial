@@ -7,10 +7,10 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.ModelAttribute;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
-import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import com.reversosocial.models.dto.EmployDto;
@@ -41,14 +41,15 @@ public class EmployController {
 
     @PostMapping
     @PreAuthorize("hasAuthority('CREATE')")
-    public ResponseEntity<EmployDto> createEmployOffer(@Valid @RequestBody EmployDto employDto) {
+    public ResponseEntity<EmployDto> createEmployOffer(@ModelAttribute @Valid EmployDto employDto) {
         EmployDto createdEmploy = employService.createEmploy(employDto);
         return new ResponseEntity<EmployDto>(createdEmploy, HttpStatus.CREATED);
     }
 
     @PutMapping("/{id}")
     @PreAuthorize("hasAuthority('UPDATE')")
-    public ResponseEntity<EmployDto> updateEmploy(@PathVariable Integer id, @RequestBody EmployDto employDto) {
+    public ResponseEntity<EmployDto> updateEmploy(@PathVariable Integer id,
+            @Valid @ModelAttribute EmployDto employDto) {
         return new ResponseEntity<EmployDto>(employService.updateEmploy(id, employDto), HttpStatus.OK);
     }
 
